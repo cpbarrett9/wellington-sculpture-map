@@ -66,11 +66,14 @@ window.onload = function() {
             if (elem.requestFullscreen) {
                 elem.requestFullscreen();
             } else if (elem.webkitRequestFullscreen) {   // iOS Safari, Chrome
-                elem.webkitRequestFullscreen();
+                let url = window.location.href;
+                window.open(url, '_blank').focus();
             } else if (elem.mozRequestFullScreen) {      // Firefox
-                elem.mozRequestFullScreen();
+                let url = window.location.href;
+                window.open(url, '_blank').focus();
             } else if (elem.msRequestFullscreen) {       // IE/Edge
-                elem.msRequestFullscreen();
+                let url = window.location.href;
+                window.open(url, '_blank').focus();
             }
             isFullscreenActive = true;
         }
