@@ -8,8 +8,8 @@ var open_eye_svg;
 var closed_eye_svg;
 var hide_menu_alert;
 
-var fullscreen_button; // <- Fullscreen button + boolean
-var isFullscreenActive = false;
+let fullscreen_button = document.getElementById("full-screen-button");
+let isFullscreenActive = false;
 
 // onClick function for menu toggle button:
 window.onload = function() {
