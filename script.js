@@ -48,36 +48,28 @@ window.onload = function() {
 
     // Adding event listener to full screen button:
     let fullscreen_button = document.getElementById("full-screen-button");
-    fullscreen_button.addEventListener("click", function(){
-        if (isFullscreenActive) {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {  // iOS Safari
-                document.webkitExitFullscreen();
-            } else if (document.mozCancelFullScreen) {   // Firefox
-                document.mozCancelFullScreen();
-            } else if (document.msExitFullscreen) {      // IE/Edge
-                document.msExitFullscreen();
-            }
-            isFullscreenActive = false;
+    fullscreen_button.addEventListener('click', function(e) {
+        const newTab = window.open('', '_blank');  // Eager open during gesture
+        
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+            // Exit fullscreen (desktop)
+            if (document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            newTab?.close();  // Close dummy if fullscreen exits
         } else {
-            // enter fullscreen with vendor prefixes
+            // Enter fullscreen or open tab
             const elem = document.documentElement;
             if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if (elem.webkitRequestFullscreen) {   // iOS Safari, Chrome
-                let url = window.location.href;
-                window.open(url, '_blank').focus();
-            } else if (elem.mozRequestFullScreen) {      // Firefox
-                let url = window.location.href;
-                window.open(url, '_blank').focus();
-            } else if (elem.msRequestFullscreen) {       // IE/Edge
-                let url = window.location.href;
-                window.open(url, '_blank').focus();
+                elem.requestFullscreen().then(() => { newTab?.close(); });
+            } else if (elem.webkitRequestFullscreen) {
+                newTab.location.href = window.location.href;  // iOS: redirect same tab
+                newTab.focus();
+            } else {
+                newTab.location.href = window.location.href;
             }
-            isFullscreenActive = true;
         }
-    })
+        isFullscreenActive = !isFullscreenActive;
+    });
 
     // Run on load:
     detectMobile(mq);
