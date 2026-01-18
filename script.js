@@ -8,8 +8,8 @@ var open_eye_svg;
 var closed_eye_svg;
 var hide_menu_alert;
 
-let fullscreen_button = document.getElementById("full-screen-button");
-let isFullscreenActive = false;
+var fullscreen_button; // <- Fullscreen button + boolean
+var isFullscreenActive = false;
 
 // onClick function for menu toggle button:
 window.onload = function() {
@@ -48,28 +48,46 @@ window.onload = function() {
 
     // Adding event listener to full screen button:
     let fullscreen_button = document.getElementById("full-screen-button");
-    fullscreen_button.addEventListener('click', function(e) {
-        const newTab = window.open('', '_blank');  // Eager open during gesture
-        
-        if (document.fullscreenElement || document.webkitFullscreenElement) {
-            // Exit fullscreen (desktop)
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-            newTab?.close();  // Close dummy if fullscreen exits
+    fullscreen_button.addEventListener("click", function(){
+
+        if (!document.fullscreenEnabled && !document.webkitFullscreenEnabled) {
+            L.popup()
+                .setLatLng(map.getCenter())
+                .setContent(`
+                    <b>Fullscreen not supported</b><br>
+                    iOS Safari & some mobile browsers block map fullscreen.<br>
+                    <a href="?" target="_blank">Open in new tab</a> or pinch-to-zoom.
+                `)
+                .openOn(map);
+            return;
+        }
+
+        if (isFullscreenActive) {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {  // iOS Safari
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {   // Firefox
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {      // IE/Edge
+                document.msExitFullscreen();
+            }
+            isFullscreenActive = false;
         } else {
-            // Enter fullscreen or open tab
+            // enter fullscreen with vendor prefixes
             const elem = document.documentElement;
             if (elem.requestFullscreen) {
-                elem.requestFullscreen().then(() => { newTab?.close(); });
-            } else if (elem.webkitRequestFullscreen) {
-                newTab.location.href = window.location.href;  // iOS: redirect same tab
-                newTab.focus();
-            } else {
-                newTab.location.href = window.location.href;
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {   // iOS Safari, Chrome
+                elem.webkitRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {      // Firefox
+                elem.mozRequestFullScreen();
+            } else if (elem.msRequestFullscreen) {       // IE/Edge
+                elem.msRequestFullscreen();
             }
+            isFullscreenActive = true;
         }
-        isFullscreenActive = !isFullscreenActive;
-    });
+    })
 
     // Run on load:
     detectMobile(mq);
